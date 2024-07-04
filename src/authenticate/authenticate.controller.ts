@@ -1,5 +1,10 @@
-import { Controller, Get, Post, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Logger, Body } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import console = require('console');
+
+type CreateSessionBody = {
+  requestToken: string;
+};
 
 @Controller('authenticate')
 export class AuthenticateController {
@@ -33,14 +38,14 @@ export class AuthenticateController {
   }
 
   @Post('session')
-  async createSession(): Promise<string> {
+  async createSession(@Body() { requestToken }: CreateSessionBody): Promise<string> {
     try {
       const session = await fetch(`${this.tmdbApiUrl}/authentication/session/new`,
         {
           ... this.options,
-          body: {
-            request_token: '32cc2643d123363302cbbb3cf56fc87d74002b11'
-          },
+          body: JSON.stringify({
+            request_token: requestToken,
+          }),
           method: 'POST',
         });
       const { session_id } = await session.json();
