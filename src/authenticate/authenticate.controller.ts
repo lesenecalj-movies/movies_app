@@ -1,6 +1,5 @@
-import { Controller, Get, Post, Logger, Body } from '@nestjs/common';
+import { Controller, Get, Post, Logger, Body, HttpException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import console = require('console');
 
 type CreateSessionBody = {
   requestToken: string;
@@ -28,9 +27,12 @@ export class AuthenticateController {
   @Get('newToken')
   async authenticate(): Promise<string> {
     try {
-      const request = await fetch(`${this.tmdbApiUrl}/authentication/token/new`, this.options);
-      const { request_token } = await request.json();
-      return request_token;  
+      const response = await fetch(`${this.tmdbApiUrl}/authentication/token/new`, this.options);
+      if (!response.ok) {
+        throw new HttpException(response.statusText, response.status);
+      }
+      const { request_token } = await response.json();
+      return request_token;
     } catch (error) {
       this.logger.error('Error during authenticate:', new Error(error));
       throw error;
@@ -40,7 +42,7 @@ export class AuthenticateController {
   @Post('session')
   async createSession(@Body() { requestToken }: CreateSessionBody): Promise<string> {
     try {
-      const session = await fetch(`${this.tmdbApiUrl}/authentication/session/new`,
+      const response = await fetch(`${this.tmdbApiUrl}/authentication/session/new`,
         {
           ... this.options,
           body: JSON.stringify({
@@ -48,10 +50,13 @@ export class AuthenticateController {
           }),
           method: 'POST',
         });
-      const { session_id } = await session.json();
+      if (!response.ok) {
+        throw new HttpException(response.statusText, response.status);
+      }
+      const { session_id } = await response.json();
       return session_id;
     } catch (error) {
-      this.logger.error('Error during createSession:', new Error(error));
+      this.logger.error('Error during createSession:', error);
       throw error;
     }
   }
