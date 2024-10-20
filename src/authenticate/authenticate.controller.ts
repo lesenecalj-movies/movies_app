@@ -28,7 +28,7 @@ export class AuthenticateController {
   }
 
   @Post('session')
-  async createSession(@Body() { requestToken }: CreateSessionBody): Promise<any> {
+  async createSession(@Body() { requestToken }: CreateSessionBody): Promise<string> {
     try {
       const { data } = await firstValueFrom(
         this.httpService.post('/authentication/session/new', { request_token: requestToken })

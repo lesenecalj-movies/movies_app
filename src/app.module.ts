@@ -5,6 +5,8 @@ import { AppService } from './app.service';
 import { AuthenticateModule } from './authenticate/authenticate.module';
 import { MoviesModule } from './movies/movies.module';
 import configuration from './config';
+import { HttpModule } from '@nestjs/axios';
+import { HttpConfigService } from './httpConfig.service';
 
 @Module({
   imports: [
@@ -12,6 +14,12 @@ import configuration from './config';
       envFilePath: '.env.local',
       load: [configuration],
     }),
+    {
+      ...HttpModule.registerAsync({
+        imports: [ConfigModule],
+        useClass: HttpConfigService,
+      }), global: true,
+    },
     AuthenticateModule,
     MoviesModule,
   ],
