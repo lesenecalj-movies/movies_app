@@ -1,17 +1,11 @@
-import { HttpModule } from '@nestjs/axios';
-import { Module, Logger } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { HttpConfigService } from 'src/httpConfig.service';
+import { Logger, Module } from '@nestjs/common';
 import { MoviesController } from './movies.controller';
+import { MoviesService } from './movies.service';
+import { MoviesRepository } from './movies.repository';
 
 @Module({
-  imports: [
-    HttpModule.registerAsync({
-      imports: [ConfigModule],
-      useClass: HttpConfigService,
-    }),
-  ],
+  imports: [],
   controllers: [MoviesController],
-  providers: [Logger]
+  providers: [Logger, MoviesRepository, MoviesService]
 })
-export class MoviesModule {}
+export class MoviesModule { }
