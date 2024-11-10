@@ -1,4 +1,11 @@
-import { Controller, Get, HttpException, Logger, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  Logger,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { ListResponse, Movie, Categorie } from './types/movies.type';
 
@@ -6,8 +13,8 @@ import { ListResponse, Movie, Categorie } from './types/movies.type';
 export class MoviesController {
   constructor(
     private readonly moviesService: MoviesService,
-    private readonly logger: Logger  ) {
-  }
+    private readonly logger: Logger,
+  ) {}
 
   @Get('categories')
   async getCategories(): Promise<Categorie[]> {
@@ -20,7 +27,9 @@ export class MoviesController {
   }
 
   @Get('popular')
-  async getPopularMovies(@Query('page') page: number = 1): Promise<ListResponse<Movie>> {
+  async getPopularMovies(
+    @Query('page') page: number = 1,
+  ): Promise<ListResponse<Movie>> {
     try {
       return this.moviesService.getPopularMoviesByPage(page);
     } catch (error) {
