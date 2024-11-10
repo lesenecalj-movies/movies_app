@@ -1,6 +1,12 @@
-import { HttpService } from '@nestjs/axios';
-import { Body, Controller, Get, HttpException, Logger, Post } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  Logger,
+  Post,
+} from '@nestjs/common';
+import { AuthenticateService } from './authenticate.service';
 
 type CreateSessionBody = {
   requestToken: string;
@@ -9,33 +15,25 @@ type CreateSessionBody = {
 @Controller('authenticate')
 export class AuthenticateController {
   constructor(
-    private readonly httpService: HttpService,
     private readonly logger: Logger,
-  ) { }
+    private readonly authenticateService: AuthenticateService,
+  ) {}
 
-  @Get('newToken')
+  @Get('token')
   async authenticate(): Promise<string> {
-    try {
-      const { data } = await firstValueFrom(
-        this.httpService.get('/authentication/token/new')
-      );
-      return data.request_token;  
-    } catch (error) {
-      this.logger.error({error});
-      throw new HttpException(error.response.statusText, error.response.status);
-    }
-    
+    return this.authenticateService.getNewToken();
   }
 
   @Post('session')
-  async createSession(@Body() { requestToken }: CreateSessionBody): Promise<string> {
+  async createSession(
+    @Body() { requestToken }: CreateSessionBody,
+  ): Promise<string> {
     try {
-      const { data } = await firstValueFrom(
-        this.httpService.post('/authentication/session/new', { request_token: requestToken })
-      );
-      return data.session_id;
+      const sessionId =
+        await this.authenticateService.createSession(requestToken);
+      return sessionId;
     } catch (error) {
-      this.logger.error({error});
+      this.logger.error({ error });
       throw new HttpException(error.response.statusText, error.response.status);
     }
   }
