@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -18,8 +19,10 @@ import { HttpConfigService } from './httpConfig.service';
       ...HttpModule.registerAsync({
         imports: [ConfigModule],
         useClass: HttpConfigService,
-      }), global: true,
+      }),
+      global: true,
     },
+    MongooseModule.forRoot('mongodb://localhost:27017/movies-dev'),
     AuthenticateModule,
     MoviesModule,
   ],

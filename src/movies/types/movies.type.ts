@@ -15,9 +15,18 @@ export type Movie = {
   vote_count: number;
 };
 
-export type PaginatedMovie = {
+export type ListResponse<T> = {
   page: number;
-  results: Movie[];
+  results: T[];
   total_pages: number;
   total_results: number;
 };
+
+export type Categorie = {
+  id: number;
+  name: string;
+};
+
+export type tmdbCategories = {
+  genres: Categorie[];
+}
