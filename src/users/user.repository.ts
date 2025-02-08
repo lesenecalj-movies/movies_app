@@ -7,6 +7,10 @@ import { User } from './user.schema';
 export class UserRepository {
   constructor(@InjectModel('User') private userModel: Model<User>) {}
 
+  async getUserByTmdbId(id: number): Promise<User | null> {
+    return this.userModel.findOne({ tmdbId: id });
+  }
+
   async save(user: User): Promise<User | null> {
     const createdUser = new this.userModel(user);
     return createdUser.save();
