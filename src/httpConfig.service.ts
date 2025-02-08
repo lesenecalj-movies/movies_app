@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { HttpModuleOptionsFactory, HttpModuleOptions } from "@nestjs/axios";
-import { ConfigService } from "@nestjs/config";
+import { Injectable } from '@nestjs/common';
+import { HttpModuleOptionsFactory, HttpModuleOptions } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class HttpConfigService implements HttpModuleOptionsFactory {
@@ -10,7 +10,7 @@ export class HttpConfigService implements HttpModuleOptionsFactory {
     this.tmdbToken = this.configService.get<string>('tmdb.token') as string;
     this.tmdbApiUrl = this.configService.get<string>('tmdb.apiUrl') as string;
   }
-  
+
   createHttpOptions(): HttpModuleOptions {
     return {
       timeout: 5000,
@@ -18,7 +18,7 @@ export class HttpConfigService implements HttpModuleOptionsFactory {
       headers: {
         accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.tmdbToken}`
+        Authorization: `Bearer ${this.tmdbToken}`,
       },
     };
   }
