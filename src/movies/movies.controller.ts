@@ -21,7 +21,6 @@ export class MoviesController {
     try {
       return this.moviesService.getCategories();
     } catch (error) {
-      this.logger.error('test:', { error });
       throw new HttpException(error.response.statusText, error.response.status);
     }
   }
@@ -34,6 +33,45 @@ export class MoviesController {
       return this.moviesService.getPopularMoviesByPage(page);
     } catch (error) {
       this.logger.error({ error });
+      throw new HttpException(error.response.statusText, error.response.status);
+    }
+  }
+
+  @Get('upcoming')
+  async getUpcomingMovies(): Promise<ListResponse<Movie>> {
+    try {
+      return this.moviesService.getUpcomingMovies();
+    } catch (error) {
+      this.logger.error({ error });
+      throw new HttpException(error.response.statusText, error.response.status);
+    }
+  }
+
+  @Get('discover')
+  async getMovies(): Promise<ListResponse<Movie>> {
+    try {
+      return this.moviesService.getMovies();
+    } catch (error) {
+      this.logger.error({ error });
+      throw new HttpException(error.response.statusText, error.response.status);
+    }
+  }
+
+  @Get('trending')
+  async getTrendingMovies(): Promise<ListResponse<Movie>> {
+    try {
+      return this.moviesService.getTrendingMovies();
+    } catch (error) {
+      this.logger.error({ error });
+      throw new HttpException(error.response.statusText, error.response.status);
+    }
+  }
+
+  @Get(':id/providers')
+  async getProviders(@Param('id') id: number): Promise<any> {
+    try {
+      return this.moviesService.getProvidersByMovieId(id);
+    } catch (error) {
       throw new HttpException(error.response.statusText, error.response.status);
     }
   }
