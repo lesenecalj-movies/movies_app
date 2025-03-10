@@ -27,10 +27,38 @@ export class MoviesRepository {
     return result.data;
   }
 
+  async getProvidersByMovieId(id: number) {
+    const result: AxiosResponse<Movie> = await firstValueFrom(
+      this.httpService.get<Movie>(`/movie/${id}/watch/providers`),
+    );
+    return result.data;
+  }
+
   async getCategories(): Promise<Categorie[]> {
     const result: AxiosResponse<tmdbCategories> = await firstValueFrom(
       this.httpService.get('genre/movie/list'),
     );
     return result.data.genres;
+  }
+
+  async getMovies(): Promise<ListResponse<Movie>> {
+    const result: AxiosResponse<ListResponse<Movie>> = await firstValueFrom(
+      this.httpService.get('/discover/movie'),
+    );
+    return result.data;
+  }
+
+  async getTrendingMovies(): Promise<ListResponse<Movie>> {
+    const result: AxiosResponse<ListResponse<Movie>> = await firstValueFrom(
+      this.httpService.get('trending/movie/week'),
+    );
+    return result.data;
+  }
+
+  async getUpcomingMovies(): Promise<ListResponse<Movie>> {
+    const result: AxiosResponse<ListResponse<Movie>> = await firstValueFrom(
+      this.httpService.get('/movie/upcoming'),
+    );
+    return result.data;
   }
 }
