@@ -41,9 +41,15 @@ export class MoviesRepository {
     return result.data.genres;
   }
 
-  async getMovies(): Promise<ListResponse<Movie>> {
+  async getMovies(
+    page: number = 1,
+    genres?: number[],
+  ): Promise<ListResponse<Movie>> {
+    const withGenres = genres && genres.length > 0 ? genres : [];
     const result: AxiosResponse<ListResponse<Movie>> = await firstValueFrom(
-      this.httpService.get('/discover/movie'),
+      this.httpService.get(
+        `/discover/movie?$page=${page}&with_genres=${withGenres}`,
+      ),
     );
     return result.data;
   }

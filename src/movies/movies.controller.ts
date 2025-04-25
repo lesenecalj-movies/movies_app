@@ -48,9 +48,12 @@ export class MoviesController {
   }
 
   @Get('discover')
-  async getMovies(): Promise<ListResponse<Movie>> {
+  async getMovies(
+    @Query('page') page: number = 1,
+    @Query('genres') genres?: number[],
+  ): Promise<ListResponse<Movie>> {
     try {
-      return this.moviesService.getMovies();
+      return this.moviesService.getMovies(page, genres);
     } catch (error) {
       this.logger.error({ error });
       throw new HttpException(error.response.statusText, error.response.status);
