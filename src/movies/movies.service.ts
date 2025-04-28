@@ -22,8 +22,12 @@ export class MoviesService {
     return this.moviesRepository.getProvidersByMovieId(movieId);
   }
 
-  async getMovies(): Promise<ListResponse<Movie>> {
-    return this.moviesRepository.getMovies();
+  async getMovies(
+    page: number,
+    genres?: number[],
+    rate?: number,
+  ): Promise<ListResponse<Movie>> {
+    return this.moviesRepository.getMovies(page, genres, rate);
   }
 
   async getUpcomingMovies(): Promise<ListResponse<Movie>> {

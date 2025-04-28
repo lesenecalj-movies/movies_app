@@ -41,9 +41,18 @@ export class MoviesRepository {
     return result.data.genres;
   }
 
-  async getMovies(): Promise<ListResponse<Movie>> {
+  async getMovies(
+    page: number,
+    genres?: number[],
+    rate?: number,
+  ): Promise<ListResponse<Movie>> {
+    const withGenres = genres && genres.length > 0 ? genres : [];
+    const voteAverageGte = rate ? rate / 10 : 0;
+
     const result: AxiosResponse<ListResponse<Movie>> = await firstValueFrom(
-      this.httpService.get('/discover/movie'),
+      this.httpService.get(
+        `/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&with_genres=${withGenres}&vote_average.gte=${voteAverageGte}&sort_by=popularity.desc`,
+      ),
     );
     return result.data;
   }
