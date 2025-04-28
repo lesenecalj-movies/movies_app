@@ -25,8 +25,9 @@ export class MoviesService {
   async getMovies(
     page: number,
     genres?: number[],
+    rate?: number,
   ): Promise<ListResponse<Movie>> {
-    return this.moviesRepository.getMovies(page, genres);
+    return this.moviesRepository.getMovies(page, genres, rate);
   }
 
   async getUpcomingMovies(): Promise<ListResponse<Movie>> {
