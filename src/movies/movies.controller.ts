@@ -16,6 +16,11 @@ export class MoviesController {
     private readonly logger: Logger,
   ) {}
 
+  @Get('suggestions')
+  async getSuggestionsImdbIds(): Promise<number[]> {
+    return this.moviesService.getSuggestedImdbIds();
+  }
+
   @Get('categories')
   async getCategories(): Promise<Categorie[]> {
     try {
