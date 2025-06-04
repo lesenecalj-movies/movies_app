@@ -1,10 +1,19 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { GroqService } from 'src/external-api/groq/groq.service';
 import { MoviesRepository } from './movies.repository';
-import { Movie, Categorie, ListResponse } from './types/movies.type';
+import { Categorie, ListResponse, Movie } from './types/movies.type';
 
 @Injectable()
 export class MoviesService {
-  constructor(private readonly moviesRepository: MoviesRepository) {}
+  groqApiKey: string;
+  constructor(
+    private readonly moviesRepository: MoviesRepository,
+    private readonly configService: ConfigService,
+    private readonly groqService: GroqService,
+  ) {
+    this.groqApiKey = this.configService.get<string>('groq.token') as string;
+  }
 
   async getPopularMoviesByPage(page: number): Promise<ListResponse<Movie>> {
     return this.moviesRepository.getPopularMoviesByPage(page);
@@ -36,5 +45,9 @@ export class MoviesService {
 
   async getTrendingMovies(): Promise<ListResponse<Movie>> {
     return this.moviesRepository.getTrendingMovies();
+  }
+
+  async getSuggestedImdbIds(): Promise<number[]> {
+    return this.groqService.suggestMovieIds();
   }
 }
