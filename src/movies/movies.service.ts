@@ -17,7 +17,7 @@ export class MoviesService {
 
   async getMovieDetailsById(
     id: number,
-    externalSource: string | undefined,
+    externalSource?: 'imdb_id',
   ): Promise<Movie> {
     if (externalSource) {
       return this.moviesRepository.getMovieFromExternalSource(
