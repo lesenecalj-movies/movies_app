@@ -5,9 +5,11 @@ import {
   Logger,
   Param,
   Query,
+  Sse,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { ListResponse, Movie, Categorie } from './types/movies.type';
+import { concatMap, delay, from, map, Observable } from 'rxjs';
 
 @Controller('movies')
 export class MoviesController {
@@ -16,9 +18,20 @@ export class MoviesController {
     private readonly logger: Logger,
   ) {}
 
-  @Get('suggestions')
-  async getSuggestionsImdbIds(): Promise<number[]> {
-    return this.moviesService.getSuggestedImdbIds();
+  @Sse('suggestions')
+  getSuggestionsImdbIds(): Observable<MessageEvent> {
+    return from(this.moviesService.getSuggestedImdbIds()).pipe(
+      concatMap((ids) => {
+        return from(ids).pipe(
+          concatMap((id, index) =>
+            from(this.moviesService.getMovieDetailsById(id, 'imdb_id')).pipe(
+              delay(150 * index),
+              map((movie) => ({ data: movie }) as MessageEvent),
+            ),
+          ),
+        );
+      }),
+    );
   }
 
   @Get('categories')
@@ -86,9 +99,12 @@ export class MoviesController {
   }
 
   @Get(':id')
-  async getMovieDetails(@Param('id') id: number): Promise<Movie> {
+  async getMovieDetails(
+    @Param('id') id: number,
+    @Query('external-source') externalSource?: string,
+  ): Promise<Movie> {
     try {
-      return this.moviesService.getMovieDetailsById(id);
+      return this.moviesService.getMovieDetailsById(id, externalSource);
     } catch (error) {
       this.logger.error({ error });
       throw new HttpException(error.response.statusText, error.response.status);
