@@ -27,6 +27,19 @@ export class MoviesRepository {
     return result.data;
   }
 
+  async getMovieFromExternalSource(
+    id: number,
+    externalSource: string,
+  ): Promise<Movie> {
+    const result: AxiosResponse<{ movie_results: Movie[] }> =
+      await firstValueFrom(
+        this.httpService.get<{ movie_results: Movie[] }>(
+          `/find/${id}?external_source=${externalSource}`,
+        ),
+      );
+    return result.data.movie_results[0];
+  }
+
   async getProvidersByMovieId(id: number) {
     const result: AxiosResponse<Movie> = await firstValueFrom(
       this.httpService.get<Movie>(`/movie/${id}/watch/providers`),

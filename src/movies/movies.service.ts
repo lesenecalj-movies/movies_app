@@ -15,8 +15,18 @@ export class MoviesService {
     return this.moviesRepository.getPopularMoviesByPage(page);
   }
 
-  async getMovieDetailsById(id: number): Promise<Movie> {
-    return this.moviesRepository.getMovieDetailsById(id);
+  async getMovieDetailsById(
+    id: number,
+    externalSource: string | undefined,
+  ): Promise<Movie> {
+    if (externalSource) {
+      return this.moviesRepository.getMovieFromExternalSource(
+        id,
+        externalSource,
+      );
+    } else {
+      return this.moviesRepository.getMovieDetailsById(id);
+    }
   }
 
   async getCategories(): Promise<Categorie[]> {
