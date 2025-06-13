@@ -101,7 +101,7 @@ export class MoviesController {
   @Get(':id')
   async getMovieDetails(
     @Param('id') id: number,
-    @Query('external-source') externalSource?: string,
+    @Query('external-source') externalSource?: 'imdb_id',
   ): Promise<Movie> {
     try {
       return this.moviesService.getMovieDetailsById(id, externalSource);
