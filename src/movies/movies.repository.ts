@@ -13,6 +13,13 @@ import {
 export class MoviesRepository {
   constructor(private readonly httpService: HttpService) {}
 
+  async searchMovies(title: string): Promise<Movie[]> {
+    const result: AxiosResponse<ListResponse<Movie>> = await firstValueFrom(
+      this.httpService.get(`/search/movie?query=${title}`),
+    );
+    return result.data.results;
+  }
+
   async getPopularMoviesByPage(page: number): Promise<ListResponse<Movie>> {
     const result: AxiosResponse<ListResponse<Movie>> = await firstValueFrom(
       this.httpService.get(`/movie/popular?page=${page}`),
@@ -20,7 +27,7 @@ export class MoviesRepository {
     return result.data;
   }
 
-  async getMovieDetailsById(id: number): Promise<Movie> {
+  async getMovieDetailsById(id: string): Promise<Movie> {
     const result: AxiosResponse<Movie> = await firstValueFrom(
       this.httpService.get<Movie>(`/movie/${id}`),
     );
@@ -28,7 +35,7 @@ export class MoviesRepository {
   }
 
   async getMovieFromExternalSource(
-    id: number,
+    id: string,
     externalSource: string,
   ): Promise<Movie> {
     const result: AxiosResponse<{ movie_results: Movie[] }> =

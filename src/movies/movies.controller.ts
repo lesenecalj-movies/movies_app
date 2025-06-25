@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { ListResponse, Movie, Categorie } from './types/movies.type';
-import { concatMap, delay, from, map, Observable } from 'rxjs';
+import { concatMap, delay, from, map, Observable, of } from 'rxjs';
 
 @Controller('movies')
 export class MoviesController {
@@ -19,18 +19,20 @@ export class MoviesController {
   ) {}
 
   @Sse('suggestions')
-  getSuggestionsImdbIds(): Observable<MessageEvent> {
-    return from(this.moviesService.getSuggestedImdbIds()).pipe(
-      concatMap((ids) => {
-        return from(ids).pipe(
-          concatMap((id, index) =>
-            from(this.moviesService.getMovieDetailsById(id, 'imdb_id')).pipe(
+  getSuggestionsImdbIds(
+    @Query('userRequest') userRequest: string,
+  ): Observable<MessageEvent> {
+    return from(this.moviesService.getSuggestedMovies(userRequest)).pipe(
+      concatMap((movies) =>
+        from(movies).pipe(
+          concatMap((movie, index) =>
+            of(movie).pipe(
               delay(150 * index),
               map((movie) => ({ data: movie }) as MessageEvent),
             ),
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
 
@@ -100,7 +102,7 @@ export class MoviesController {
 
   @Get(':id')
   async getMovieDetails(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Query('external-source') externalSource?: 'imdb_id',
   ): Promise<Movie> {
     try {
