@@ -12,33 +12,46 @@ export class GroqService {
     @Inject('GroqHttpService') private readonly groqHttp: HttpService,
   ) {}
 
-  async suggestMovieIds(): Promise<number[]> {
+  async suggestMovieTitles(userRequest: string): Promise<string[]> {
+    const systemPrompt = `
+    Tu es un expert en recommandations de films. 
+    Tu réponds toujours uniquement avec un objet JSON du format : { "titles": ["Film 1", "Film 2", "Film 3"] }
+    Les films doivent correspondre exactement à la demande utilisateur : genre, période, style. 
+    Ne retourne que des films connus et bien notés.
+    Ne crée jamais de films inventés.
+    `.trim();
+
+    const userPrompt = `Donne-moi des films correspondant à cette demande : ${userRequest}`;
+
     try {
       const response = await firstValueFrom(
         this.groqHttp.post('/chat/completions', {
-          model: 'llama-3.1-8b-instant',
+          model: 'llama3-8b-8192',
           messages: [
             {
               role: 'system',
-              content: 'You are a movie recommendation expert.',
+              content: systemPrompt,
             },
             {
               role: 'user',
-              content:
-                'Suggest 3 good movies to watch. Return only the IMDb IDs in a JSON array. No text before or after. Only the JSON array.',
+              content: userPrompt,
             },
           ],
-          temperature: 0.7,
+          temperature: 0.9,
         }),
       );
 
-      const content = response.data.choices?.[0]?.message?.content ?? '';
-      return JSON.parse(content);
+      const content = response.data.choices?.[0]?.message?.content ?? '{}';
+      const parsed = JSON.parse(content);
+
+      if (!Array.isArray(parsed.titles)) {
+        throw new Error('Unexpected format returned by Groq');
+      }
+
+      return parsed.titles;
     } catch (err) {
       console.error('Groq error:', err?.response?.data || err.message || err);
-      throw new InternalServerErrorException(
-        'Groq call failed or returned invalid JSON',
-      );
+      throw new InternalServerErrorException('Échec de la suggestion de films');
     }
   }
 }

@@ -11,12 +11,21 @@ export class MoviesService {
     private readonly groqService: GroqService,
   ) {}
 
+  async searchMovie(title: string): Promise<Movie | undefined> {
+    const movies = await this.moviesRepository.searchMovies(title);
+    if (!movies || movies.length === 0) {
+      return;
+    }
+    movies.sort((a, b) => b.popularity - a.popularity);
+    return movies[0];
+  }
+
   async getPopularMoviesByPage(page: number): Promise<ListResponse<Movie>> {
     return this.moviesRepository.getPopularMoviesByPage(page);
   }
 
   async getMovieDetailsById(
-    id: number,
+    id: string,
     externalSource?: 'imdb_id',
   ): Promise<Movie> {
     if (externalSource) {
@@ -53,7 +62,23 @@ export class MoviesService {
     return this.moviesRepository.getTrendingMovies();
   }
 
-  async getSuggestedImdbIds(): Promise<number[]> {
-    return this.groqService.suggestMovieIds();
+  async getSuggestedMovies(userRequest: string): Promise<Movie[]> {
+    const suggestedMovieTitles =
+      await this.groqService.suggestMovieTitles(userRequest);
+
+    if (!suggestedMovieTitles || suggestedMovieTitles.length === 0) {
+      return [];
+    }
+
+    const moviesDetails = await Promise.all(
+      suggestedMovieTitles.map(async (movieTitle: string) => {
+        const movie = await this.searchMovie(movieTitle);
+        if (movie) {
+          return this.getMovieDetailsById(`${movie.id}`);
+        }
+      }),
+    );
+
+    return moviesDetails as Movie[];
   }
 }
