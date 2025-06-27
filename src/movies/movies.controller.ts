@@ -5,11 +5,9 @@ import {
   Logger,
   Param,
   Query,
-  Sse,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
-import { ListResponse, Movie, Categorie } from './types/movies.type';
-import { concatMap, delay, from, map, Observable, of } from 'rxjs';
+import { Categorie, ListResponse, Movie } from './types/movies.type';
 
 @Controller('movies')
 export class MoviesController {
@@ -18,22 +16,11 @@ export class MoviesController {
     private readonly logger: Logger,
   ) {}
 
-  @Sse('suggestions')
-  getSuggestionsImdbIds(
+  @Get('suggestions')
+  getMoviesSuggested(
     @Query('userRequest') userRequest: string,
-  ): Observable<MessageEvent> {
-    return from(this.moviesService.getSuggestedMovies(userRequest)).pipe(
-      concatMap((movies) =>
-        from(movies).pipe(
-          concatMap((movie, index) =>
-            of(movie).pipe(
-              delay(150 * index),
-              map((movie) => ({ data: movie }) as MessageEvent),
-            ),
-          ),
-        ),
-      ),
-    );
+  ): Promise<Movie[]> {
+    return this.moviesService.getSuggestedMovies(userRequest);
   }
 
   @Get('categories')

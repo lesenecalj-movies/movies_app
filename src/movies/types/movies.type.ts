@@ -29,4 +29,4 @@ export type Categorie = {
 
 export type tmdbCategories = {
   genres: Categorie[];
-}
+};

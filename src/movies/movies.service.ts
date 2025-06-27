@@ -71,14 +71,15 @@ export class MoviesService {
     }
 
     const moviesDetails = await Promise.all(
-      suggestedMovieTitles.map(async (movieTitle: string) => {
-        const movie = await this.searchMovie(movieTitle);
-        if (movie) {
-          return this.getMovieDetailsById(`${movie.id}`);
-        }
-      }),
+      suggestedMovieTitles
+        .filter((item): item is NonNullable<typeof item> => item !== undefined)
+        .map(async (movieTitle: string) => {
+          const movie = await this.searchMovie(movieTitle);
+          if (movie) {
+            return this.getMovieDetailsById(`${movie.id}`);
+          }
+        }),
     );
-
     return moviesDetails as Movie[];
   }
 }
