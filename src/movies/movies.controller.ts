@@ -7,7 +7,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
-import { Categorie, ListResponse, Movie } from './types/movies.type';
+import { Categorie, Movie, TmdbVideoMovie } from './types/movies.type';
+import { ListTmdbResponse } from './types/tmdb.type';
 
 @Controller('movies')
 export class MoviesController {
@@ -35,7 +36,7 @@ export class MoviesController {
   @Get('popular')
   async getPopularMovies(
     @Query('page') page: number = 1,
-  ): Promise<ListResponse<Movie>> {
+  ): Promise<ListTmdbResponse<Movie>> {
     try {
       return this.moviesService.getPopularMoviesByPage(page);
     } catch (error) {
@@ -45,7 +46,7 @@ export class MoviesController {
   }
 
   @Get('upcoming')
-  async getUpcomingMovies(): Promise<ListResponse<Movie>> {
+  async getUpcomingMovies(): Promise<ListTmdbResponse<Movie>> {
     try {
       return this.moviesService.getUpcomingMovies();
     } catch (error) {
@@ -59,7 +60,7 @@ export class MoviesController {
     @Query('page') page: number,
     @Query('genres') genres?: number[],
     @Query('rate') rate?: number,
-  ): Promise<ListResponse<Movie>> {
+  ): Promise<ListTmdbResponse<Movie>> {
     try {
       return this.moviesService.getMovies(page, genres, rate);
     } catch (error) {
@@ -69,7 +70,7 @@ export class MoviesController {
   }
 
   @Get('trending')
-  async getTrendingMovies(): Promise<ListResponse<Movie>> {
+  async getTrendingMovies(): Promise<ListTmdbResponse<Movie>> {
     try {
       return this.moviesService.getTrendingMovies();
     } catch (error) {
@@ -82,6 +83,17 @@ export class MoviesController {
   async getProviders(@Param('id') id: number): Promise<any> {
     try {
       return this.moviesService.getProvidersByMovieId(id);
+    } catch (error) {
+      throw new HttpException(error.response.statusText, error.response.status);
+    }
+  }
+
+  @Get(':id/trailer')
+  async getTrailer(
+    @Param('id') id: number,
+  ): Promise<TmdbVideoMovie | undefined> {
+    try {
+      return this.moviesService.getTrailerMovie(id);
     } catch (error) {
       throw new HttpException(error.response.statusText, error.response.status);
     }
