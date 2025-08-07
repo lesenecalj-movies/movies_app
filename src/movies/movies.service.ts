@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { GroqService } from 'src/external-api/groq/groq.service';
 import { MoviesRepository } from './movies.repository';
-import { Categorie, ListResponse, Movie } from './types/movies.type';
+import { Categorie, Movie, TmdbVideoMovie } from './types/movies.type';
+import { ListTmdbResponse, TmdbResponse } from './types/tmdb.type';
 
 @Injectable()
 export class MoviesService {
-  groqApiKey: string;
   constructor(
     private readonly moviesRepository: MoviesRepository,
     private readonly groqService: GroqService,
@@ -20,7 +20,7 @@ export class MoviesService {
     return movies[0];
   }
 
-  async getPopularMoviesByPage(page: number): Promise<ListResponse<Movie>> {
+  async getPopularMoviesByPage(page: number): Promise<ListTmdbResponse<Movie>> {
     return this.moviesRepository.getPopularMoviesByPage(page);
   }
 
@@ -38,6 +38,15 @@ export class MoviesService {
     }
   }
 
+  async getTrailerMovie(id: number): Promise<TmdbVideoMovie | undefined> {
+    const videos: TmdbResponse<TmdbVideoMovie> =
+      await this.moviesRepository.getVideosMovie(id);
+    if (!videos || videos.results.length < 1) return;
+    return videos.results.find(
+      (video) => video.official === true && video.type === 'Trailer',
+    );
+  }
+
   async getCategories(): Promise<Categorie[]> {
     return this.moviesRepository.getCategories();
   }
@@ -50,15 +59,15 @@ export class MoviesService {
     page: number,
     genres?: number[],
     rate?: number,
-  ): Promise<ListResponse<Movie>> {
+  ): Promise<ListTmdbResponse<Movie>> {
     return this.moviesRepository.getMovies(page, genres, rate);
   }
 
-  async getUpcomingMovies(): Promise<ListResponse<Movie>> {
+  async getUpcomingMovies(): Promise<ListTmdbResponse<Movie>> {
     return this.moviesRepository.getUpcomingMovies();
   }
 
-  async getTrendingMovies(): Promise<ListResponse<Movie>> {
+  async getTrendingMovies(): Promise<ListTmdbResponse<Movie>> {
     return this.moviesRepository.getTrendingMovies();
   }
 
